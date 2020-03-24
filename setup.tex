@@ -1,0 +1,79 @@
+% \usepackage[letterpaper,right=1.5in,top=0.8in,bottom=0.8in,left=0.8in]{geometry}
+\usepackage{hyperref}
+\usepackage{tocloft}
+\usepackage{commath}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{mathabx}
+\usepackage{esdiff}
+\usepackage{caption}
+\usepackage{esvect}
+\usepackage{makeidx}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{newclude}
+\usepackage{siunitx}
+\usepackage{listings}
+
+\usepackage{physics}
+\usepackage{fullpage}
+
+% Bibliography
+\usepackage[style=verbose-ibid,backend=biber]{biblatex}
+\addbibresource{references.bib}
+
+% Color hyperlinks
+\hypersetup{
+    colorlinks,
+    linkcolor = blue,
+    citecolor = blue
+}
+
+% Number by section
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
+% % LaTeX can vectors
+\newcommand{\ora}[1]{\overrightarrow{#1}}
+\DeclareRobustCommand*{\ora}{\overrightarrow}
+\newcommand{\unitvec}[1]{\mathbf{e}_{\mathbf{#1}}}
+\newcommand{\vecpart}[1]{\left\langle #1 \right\rangle}
+\renewcommand{\v}{\mathbf}
+
+% % LaTeX can norms
+\newcommand{\veclen}[1]{\left\lvert#1\right\rvert}
+\let\abs\veclen
+
+% Overbar used for repetition
+\newcommand{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+
+% amsthm styles
+\theoremstyle{definition}\newtheorem{defn}{Definition}[section]
+\newtheorem{mathrule}{Rule}[section]
+\theoremstyle{plain}\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}{Corollary}[thm]
+\theoremstyle{definition}\newtheorem{ex}{Example}[section]
+\theoremstyle{definition}\newtheorem*{soln}{Solution}
+
+% autoref names
+\def\sectionautorefname{Section}
+\def\tableautorefname{Table}
+\def\defnautorefname{Definition}
+\def\thmautorefname{Theorem}
+\def\corautorefname{Corollary}
+
+% LaTeX can derivatives and also st
+\newcommand{\ddx}[1]{\diff{}{x}\left[#1\right]}
+\newcommand{\ddt}[1]{\diff{}{t}\left[#1\right]}
+\newcommand{\st}{\text{ st. }}
+\newcommand{\setst}{\ \middle\rvert\ }
+
+% Custom math operators
+\DeclareMathOperator{\qnorm}{N}
+
+% Only number a specific equation in eg. an align environment
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}

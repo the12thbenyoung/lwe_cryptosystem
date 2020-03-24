@@ -1,0 +1,17 @@
+\section{Abstract}\label{sec:abstract}
+This report provides an overview of mathematical lattices and 
+lattice-based cryptography and provides an in-depth exploration
+into and implementation of one particular cryptosystem, the 
+Learning With Errors (LWE) cryptosystem. 
+
+A lattice is a structured, periodic set of points in $n$-dimensional
+space. It is generated as the set of all integer-coefficient linear
+combinations of a set of $n$-length basis vectors. Lattices are promising
+cryptographic structures because they form the basis for several problems
+that are conjectured to be unsolvable in polynomial time for both 
+classical and quantum algorithms. One such problem is the shortest
+vector problem (SVP), which entails finding the shortest vector in
+a lattice to within a certain approximation factor. Another (at first seemingly unrelated to lattices) problem conjectured to be hard if the learning with errors problem, which entails determining whether a vector has been
+sampled from a uniform distribution or a rounded normal distribution. Worst-case SVP can be reduced to LWE. We also give an overview and an implementation
+of a public-key cryptosystem that is secure in that successfully attacking
+it implies having found a solution to the LWE problem.
