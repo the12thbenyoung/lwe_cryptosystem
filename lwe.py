@@ -124,6 +124,7 @@ def main():
     # bits per message segment (each char encoded as 7-bit ascii)
     segment_bits = segment_chars * 7
     n = segment_bits * 2 - 1
+    # these parameters aren't secure but this is just a demo
     l = n
     m = 2008
     q = 2003

@@ -8,7 +8,7 @@
 \title{Lattice-based Cryptography and LWE}
 \author{Ben Young}
 \institute{MATH 408}
-\date{April 27, 2020}
+\date{April 26, 2020}
 
 \begin{document}
 
@@ -73,7 +73,7 @@ Given $\v{A} \in \mathbb{Z}_q^{n \times m}$, define
 \begin{frame}
 \frametitle{Lattices - overview}
 Another way to generate a q-ary lattice from a non-square matrix:
-\begin{block}{Definition: $\Lambda_q$}
+\begin{block}{Definition: $\Lambda_q^\perp$}
 Given $\v{A} \in \mathbb{Z}_q^{n \times m}$, define
 \begin{equation*}
     \Lambda_q^\perp(\v{A}) := \{\v{x} \in \mathbb{Z}^m: \v{Ax} = \v{0}
@@ -126,8 +126,10 @@ The shortest vector in $\mathcal{L}(\v{B})$ is
 \frametitle{Lattice Problems}
 \begin{block}{Closest Vector Problem (CVP)}
     Given a basis $\v{B}$, approximation factor $\gamma$ and 
-    $\v{t} \notin \mathcal{L}(\v{B})$, find the point in 
-    $\mathcal{L}(\v{B})$ closest to $\v{t}$
+    $\v{t} \notin \mathcal{L}(\v{B})$, find a point in 
+    $\mathcal{L}(\v{B})$ within $\gamma d$ of $\v{t}$,
+    where $d$ is the shortest distance between any $\v{x} \in 
+    \mathcal{L}(\v{B})$ and $\v{t}$.
 \end{block}
 \begin{columns}
 \column{0.45\textwidth}
@@ -155,7 +157,7 @@ $\v{B}_i=[\v{b}_1,\ldots,2\v{b}_i,\ldots,\v{b}_n]$ and $\v{b}_i$,
 which is not $\in \mathcal{L}(\v{B}_i)$ because $[\v{b}_1, \ldots, \v{b}_n]$ are linearly independent. Let $\v{v}_i$ be the output of CVP (the vector in 
 $\mathcal{L}(\v{B}_i)$ closest to $\v{b}_i$). Then
 \[
-    \arg\min_{\v{v}_1-\v{b}_1,\ldots,\v{v}_1-\v{b}_1}{\|\v{v}_i-\v{b}_i\|}
+    \arg\min_{\v{v}_1-\v{b}_1,\ldots,\v{v}_n-\v{b}_n}{\|\v{v}_i-\v{b}_i\|}
 \]
 is the solution to SVP for $\v{B}$.
 \end{frame}
@@ -258,7 +260,7 @@ nearest integer $\pmod{q}$.
 Solving LWE is equivalent to decoding a random linear code.
 Suppose LWE problem has $m$ equations, let 
 \[
-    \v{Q} = [\v{a}_1,\ldots,\v{a}_m] \in \mathbb{Z}^{m\times n}_p
+    \v{Q} = [\v{a}_1,\ldots,\v{a}_m]^T \in \mathbb{Z}^{m\times n}_p
 \]
 so we can reformulate the problem as recovering $\v{s}$ from
 \[
@@ -300,7 +302,7 @@ was used to generate $b$.
 \frametitle{Learning Problems}
 \begin{block}{Lemma}
 The LWE and LWE-decision problems are equivalent. Formally,
-Let $p \leq \text{poly}(n)$ is a prime, $chi$ is a probability distribution on
+Let $p \leq \text{poly}(n)$ be prime, $\chi$ be a probability distribution on
 $\mathbb{Z}^p$. Suppose we have access to a procedure that solves the LWE-decision
 problem in polynomial time for a non-negligible fraction of all possible $\v{s} \in
 \mathbb{Z}_p^n$. Then we can solve $\text{LWE}_{p,\chi}$ in polynomial
@@ -379,18 +381,144 @@ very close to $\v{As}$.
 \begin{frame}
 \frametitle{LWE and lattice problems}
 Why do we need a quantum reduction?
+The reduction uses a modified oracle for CVP. Let $L$ be a lattice, 
+$d$ be a distance much smaller than the length of the smallest
+vector in $L$.
+If $\v{x}$ is a vector within $d$ of $L$, the oracle finds the point
+in $L$ closest to $\v{x}$. If $\v{x}$ is not within $d$ of $L$ then 
+the oracle's output is undefined. The only way to reliably generate an input
+to the oracle is to let $\v{x}=\v{y+z}$ for $\v{y} \in L$ and a
+small pertubation vector $\v{z}$. Then the oracle produces $\v{y}$,
+the closest vector in $L$ to $\v{x}$. But we already know $\v{y}$ since we used
+it to generate $\v{x}$!
 
+So the oracle is only useful in a quantum setting: it lets us uncompute
+$\v{y}$.
 \end{frame}
+
 \begin{frame}
-    So hardness of LWE depends on the \textit{quantum} hardness of
-    SIVP and SVP, a weaker condition than the \textit{classical}
-    hardness of SIVP and SVP.
-
-Removing the quantum part, however, comes at a cost: the construction can no longer be iterative,
-the hardness can no longer be based on SIVP, and even for hardness based on G AP SVP, the modulus p
-in the LWE problem must be exponentially big unless we assume the hardness of a non-standard variant
-of G AP SVP. Because of this, we believe that dequantizing our main theorem remains an important open
-problem
+\frametitle{LWE and lattice problems}
+So hardness of LWE depends on the \textit{quantum} hardness of
+SIVP and GapSVP, a weaker condition than the \textit{classical} (non-quantum)
+hardness of SIVP and GapSVP.
+\bigskip \\
+Peikert (2009) found a non-quantum reduction from GapSVP to LWE, so
+the below LWE cryptosystem depends on the classical hardness of GapSVP.
+But $p$ in the LWE problem must be exponentially large and no 
+corresponding classical reduction was found for SIVP.
 \end{frame}
 
+\begin{frame}
+\frametitle{LWE Cryptosystem}
+[2] proposed a cryptosystem based on the conjectured hardness of the
+LWE-decision problem. We present [1]'s version, which has a few
+improvements.
+\bigskip \\
+The system has integer parameters $n$, $m$, $l$, $t$, $r$, and $q$, where $n$ is the dimension of the lattice underlying the system (and is thus
+the most important security parameter), $l$ is the length of each message, and
+$t$ is the size of the field over which the message bits are chosen (usually 2).
+It also has real-valued parameter $\alpha > 0$, which is the spread of
+the distribution $\Psi_{\alpha}$.
+\bigskip \\
+The system uses function $f: \mathbb{Z}_t^l \to \mathbb{Z}_q^l$ that converts
+mod-$t$ vectors to mod-$q$ vectors by multiplying each coordinate in its
+input by $\frac{q}{t}$ and rounding to the nearest integer.
+$f$ has corresponding inverse $f^{-1}: \mathbb{Z}_q^l \to \mathbb{Z}_t^l$
+that converts mod-$q$ vectors to mod-$t$ vectors by multiplying each
+coordinate by $\frac{t}{q}$ and rounding to the nearest integer.
+\end{frame}
+
+\begin{frame}
+\frametitle{LWE Cryptosystem}
+The private key is a random uniformly-chosen matrix
+$\v{S} \in \mathbb{Z}_q^{n \times l}$. 
+To determine a public key, choose two more random matrices:
+$\v{A} \in \mathbb{Z}_q^{m \times n}$ from a uniform distribution
+and $\v{E} \in \mathbb{Z}_q^{m \times l}$ with each entry chosen
+from $\Psi_{\alpha}$. Then calculate 
+\begin{equation}
+    \v{P} = \v{AS} + \v{E} \in \mathbb{Z}_q^{m \times l} 
+\end{equation}
+and the public key is the pair $(\v{A}, \v{P})$.
+
+To encrypt a message $\v{v} \in \mathbb{Z}_t^l$ choose $\v{a} \in \{-r, -r+1, \cdots, r\}^m$ uniformly at random, calculate 
+\begin{equation}
+    \v{u} = \v{A}^T\v{a} \in \mathbb{Z}_q^n,\quad
+    \v{c} = \v{P}^T\v{a} + f(\v{v}) \in \mathbb{Z}_q^l
+\end{equation}
+and send ciphertext $(\v{u}, \v{c})$.
+
+Then to decrypt a ciphertext, calculate 
+\begin{equation}
+    m = f^{-1}(\v{c} - \v{S}^T\v{u}) \in \mathbb{Z}_t^l
+\end{equation}
+and $m$ will be the original plaintext.
+\end{frame}
+
+\begin{frame}
+\frametitle{LWE Cryptosystem}
+\begin{block}{Proof of security}
+    \begin{itemize}
+    \item
+        Distinguishing between $\v{P}$ sampled uniformly and $\v{P} = \v{AS+E}$ as
+    generated by the cryptosystem using $\Psi_\alpha$ entails solving LWE-decision, which is hard for certain parameter values.
+    \item
+    Encryption using public keys sampled from the uniform distribution (i.e. not generated
+    by the cryptosystem) carries no significant information
+    about the encrypted message.
+\item Thus breaking the system implies the ability to distinguish between keys 
+    generated by the cryptosystem and uniformly sampled keys,
+    which implies the ability to solve LWE-decision.
+    \end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{LWE Cryptosystem}
+    Improved LWE cryptosystem has better key and encrypted message sizes and fewer
+    operations per encrypted bit than earlier cryptosystems
+    based on hardness of lattice problems.
+    \begin{itemize}
+        \item Private key size $nl\log{q}$\quad ($\v{S} \in \mathbb{Z}_q^{n \times l}$)
+        \item Public key size $m(n+l)\log{q}$\quad $\left((\v{A},\v{P}) \in \mathbb{Z}_q^{m \times n} \times \mathbb{Z}_q^{m \times l}\right)$
+        \item Encrypted message size $(n+l)\log{q}$ \quad $\left((\v{u,c}) \in 
+            \mathbb{Z}_q^n \times\mathbb{Z}_q^l\right)$
+        \item $\tilde{O}\left(\frac{1}{l}m\left(l+n\right)\right)$
+            operations per encrypted bit \\
+            (Each $\v{v} \in \mathbb{Z}_t^l$ requires calculating
+            $\v{A}^T\v{a}$ and $\v{P}^T\v{a}$ for $\v{a} \in \mathbb{Z}^m$)
+        \item $\tilde{O}(n)$
+            operations per decrypted bit \\
+            (finding $l$-length decrypted message requires calculating
+            $\v{S}^T\v{u}$ for $\v{S} \in \mathbb{Z}_q^{n \times l}$,
+            $\v{u} \in \mathbb{Z}_q^n$)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{LWE cryptosystem implementation}
+    A rough working implementation of the above cryptosystem can
+    be found at
+    \bigskip\\
+    {\footnotesize https://github.com/the12thbenyoung/lwe\_cryptosystem/blob/master/lwe.py \par}
+    \bigskip
+    The rounding done by functions $f$ and $f^{-1}$
+    used in the encryption and decryption procedures occasionally produces
+    errors that cause the decrypted message to differ from the original plaintext.
+    Thus the program uses a simple Hamming error correcting code to correct at
+    most one incorrect bit per message.
+\end{frame}
+
+\begin{frame}
+\frametitle{References}
+\section{References}\label{sec:references}
+[1] D. Micciancio and O. Regev. Lattice-based Cryptography. 2008. cims.nyu.edu/$\sim$~regev/papers/pqc.pdf
+\bigskip \\
+\noindent [2] O. Regev, On lattices, learning with errors, random linear codes,
+and cryptography. In \textit{Proc. 37th ACM Symp. on Theory of Computing}, pages 84-93, 2005. https://cims.nyu.edu/~regev/papers/qcrypto.pdf
+\bigskip \\
+\noindent [3] C. Peikert, V. Vaikuntanathan, and B. Waters. A framework for
+efficient and composable oblivious transfer. In \textit{Advances in
+Cryptology}. Springer, 2008. https://eprint.iacr.org/2007/348.pdf
+\end{frame}
 \end{document}
